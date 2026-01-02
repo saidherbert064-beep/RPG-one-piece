@@ -1,10 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
-import type { GameState, CharacterStats } from './types';
+import type { GameState, CharacterStats, HakiActivation } from './types';
 import LoginScreen from './components/LoginScreen';
 import GMView from './components/GMView';
 import PlayerView from './components/PlayerView';
 import GameOverScreen from './components/GameOverScreen';
 import WorldMap from './components/WorldMap';
+import HakiEffects from './components/HakiEffects';
 
 // Initial game data
 const initialPlayers: CharacterStats[] = [
@@ -65,10 +67,18 @@ const App: React.FC = () => {
     });
     const [user, setUser] = useState<{ role: 'gm' | 'player'; playerId?: string } | null>(null);
     const [isMapOpen, setMapOpen] = useState(false);
+    const [hakiEffect, setHakiEffect] = useState<HakiActivation | null>(null);
 
     useEffect(() => {
         localStorage.setItem('one-piece-rpg-state', JSON.stringify(gameState));
     }, [gameState]);
+
+    const triggerHakiEffect = (activation: HakiActivation) => {
+        setHakiEffect(activation);
+        setTimeout(() => {
+            setHakiEffect(null);
+        }, 3000); // Effect lasts for 3 seconds
+    };
 
     const handleLogin = (role: 'gm' | 'player', playerId?: string) => {
         setUser({ role, playerId });
@@ -93,7 +103,7 @@ const App: React.FC = () => {
         }
         
         if (user.role === 'gm') {
-            return <GMView gameState={gameState} setGameState={setGameState} onLogout={handleLogout} />;
+            return <GMView gameState={gameState} setGameState={setGameState} onLogout={handleLogout} onHakiActivate={triggerHakiEffect} />;
         }
 
         if (user.role === 'player' && user.playerId) {
@@ -109,12 +119,13 @@ const App: React.FC = () => {
 
     return (
         <main className="bg-slate-800 text-white min-h-screen bg-cover bg-center bg-fixed" style={{backgroundImage: "url('https://wallpapercave.com/wp/wp10219159.jpg')"}}>
+            <HakiEffects activeEffect={hakiEffect} />
             <div className="bg-black/50 min-h-screen">
                 {renderContent()}
                 {user && !gameState.gameOver && (
                     <button
                         onClick={() => setMapOpen(true)}
-                        className="fixed bottom-4 right-4 bg-amber-700/80 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-full shadow-lg border border-amber-500 backdrop-blur-sm transition-all"
+                        className="fixed bottom-4 right-4 bg-amber-700/80 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-full shadow-lg border border-amber-500 backdrop-blur-sm transition-all z-20"
                     >
                         Ver Mapa
                     </button>

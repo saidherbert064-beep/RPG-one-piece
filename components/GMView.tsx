@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import type { GameState, GameLogEntry, CharacterStats } from '../types';
+import type { GameState, GameLogEntry, CharacterStats, HakiActivation } from '../types';
 import { getNextTurn } from '../services/geminiService';
 import CharacterSheet from './CharacterSheet';
 import GameLog from './GameLog';
@@ -9,9 +9,10 @@ interface GMViewProps {
   gameState: GameState;
   setGameState: React.Dispatch<React.SetStateAction<GameState>>;
   onLogout: () => void;
+  onHakiActivate: (activation: HakiActivation) => void;
 }
 
-const GMView: React.FC<GMViewProps> = ({ gameState, setGameState, onLogout }) => {
+const GMView: React.FC<GMViewProps> = ({ gameState, setGameState, onLogout, onHakiActivate }) => {
   const [gmDirective, setGmDirective] = useState('');
   const gameLogRef = useRef<HTMLDivElement>(null);
 
@@ -42,13 +43,25 @@ const GMView: React.FC<GMViewProps> = ({ gameState, setGameState, onLogout }) =>
     try {
       const response = await getNextTurn(gmDirective, gameState.players, activePlayer, currentLog);
 
+      if (response.hakiActivation) {
+        onHakiActivate(response.hakiActivation);
+      }
+
       const newGmEntry: GameLogEntry = { type: 'gm', text: response.narrative };
       const updatedLog = [...currentLog, newGmEntry];
       
       const updatedPlayers = gameState.players.map(p => {
           const update = response.playerUpdates.find(up => up.playerId === p.id);
-          if (update) {
-              return { ...p, ...update.stats };
+          if (update && update.stats) {
+            // Merge stats carefully to avoid overwriting entire arrays
+            const newStats = { ...p };
+            Object.keys(update.stats).forEach(key => {
+                const statKey = key as keyof typeof update.stats;
+                if(update.stats![statKey] !== undefined){
+                    (newStats as any)[statKey] = update.stats![statKey];
+                }
+            });
+            return newStats;
           }
           return p;
       });

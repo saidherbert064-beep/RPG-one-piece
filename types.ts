@@ -33,9 +33,17 @@ export type PlayerUpdate = {
   stats: Partial<Omit<CharacterStats, 'id'>>;
 }
 
+export type HakiType = 'Armamento' | 'Observação' | 'Conquistador';
+
+export interface HakiActivation {
+    playerId: string;
+    hakiType: HakiType;
+}
+
 export interface GeminiResponse {
   narrative: string;
   playerUpdates: PlayerUpdate[];
   choices: string[]; // Choices for the current active player
   gameOver: boolean;
+  hakiActivation?: HakiActivation;
 }
