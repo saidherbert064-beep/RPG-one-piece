@@ -49,6 +49,45 @@ const initialPlayers: CharacterStats[] = [
     location: "Sala de Cartografia",
     inventory: ["Clima-Tact", "Mapas", "Bússola"],
   },
+  {
+    id: 'player4',
+    name: 'Novo Pirata (Slot 4)',
+    hp: 100,
+    maxHp: 100,
+    energy: 50,
+    maxEnergy: 50,
+    bounty: 0,
+    devilFruit: "Nenhuma",
+    haki: [],
+    location: "Desconhecido",
+    inventory: [],
+  },
+  {
+    id: 'player5',
+    name: 'Novo Pirata (Slot 5)',
+    hp: 100,
+    maxHp: 100,
+    energy: 50,
+    maxEnergy: 50,
+    bounty: 0,
+    devilFruit: "Nenhuma",
+    haki: [],
+    location: "Desconhecido",
+    inventory: [],
+  },
+  {
+    id: 'player6',
+    name: 'Novo Pirata (Slot 6)',
+    hp: 100,
+    maxHp: 100,
+    energy: 50,
+    maxEnergy: 50,
+    bounty: 0,
+    devilFruit: "Nenhuma",
+    haki: [],
+    location: "Desconhecido",
+    inventory: [],
+  },
 ];
 
 const initialGameState: GameState = {
@@ -68,6 +107,14 @@ const App: React.FC = () => {
                 const parsedState = JSON.parse(savedState);
                 // Basic validation to ensure it's not empty or fundamentally broken
                 if (parsedState && parsedState.players && parsedState.players.length > 0) {
+                    // Ensure we have all 6 slots if loading from an older save
+                    if (parsedState.players.length < 6) {
+                        const mergedPlayers = [...parsedState.players];
+                        for (let i = parsedState.players.length; i < 6; i++) {
+                            mergedPlayers.push(initialPlayers[i]);
+                        }
+                        return { ...parsedState, players: mergedPlayers };
+                    }
                     return parsedState;
                 }
             }

@@ -5,26 +5,26 @@ import type { GameLogEntry, CharacterStats, GeminiResponse, PlayerUpdate } from 
 const model = "gemini-3-flash-preview";
 
 const systemInstruction = `
-VocÃª Ã© um Assistente de Mestre de Jogo (GM) para um RPG de texto no universo de One Piece. Sua funÃ§Ã£o Ã© colaborar com um GM humano para criar uma histÃ³ria Ã©pica para um grupo de jogadores.
+Você é um Assistente de Mestre de Jogo (GM) para um RPG de texto no universo de One Piece. Sua função é colaborar com um GM humano para criar uma história épica para um grupo de jogadores.
 
-**REGRAS DE COLABORAÃÃO:**
+**REGRAS DE COLABORAÇÃO:**
 
-1.  **O GM Humano Ã© a Autoridade MÃ¡xima:** O GM humano fornecerÃ¡ diretrizes, comandos e decisÃµes de enredo atravÃ©s de um "Comando do Mestre". Sua principal tarefa Ã© pegar esses comandos e transformÃ¡-los em uma narrativa rica e detalhada para os jogadores.
-2.  **Narrador do Mundo:** VocÃª Ã© responsÃ¡vel por descrever o mundo, os NPCs, os ambientes e os resultados das aÃ§Ãµes. Seja criativo e use o vasto conhecimento de One Piece para dar vida Ã  histÃ³ria.
-3.  **Gerenciamento de MÃºltiplos Jogadores:** A entrada conterÃ¡ o estado de TODOS os jogadores. Suas respostas devem refletir isso, atualizando os status de mÃºltiplos jogadores se necessÃ¡rio (ex: um ataque em Ã¡rea, uma recompensa para o grupo).
-4.  **Autonomia Criativa (com Limites):** Se o GM humano nÃ£o der um comando especÃ­fico, vocÃª deve continuar a histÃ³ria com base na aÃ§Ã£o do jogador ativo, mantendo o fluxo do jogo. No entanto, sempre priorize a direÃ§Ã£o do GM humano quando ela for dada.
-5.  **Gerenciamento de InventÃ¡rio:** Os jogadores podem encontrar itens. Adicione-os Ã  lista 'inventory' do jogador correspondente.
-6.  **AtivaÃ§Ã£o Visual de Haki:** QUANDO um personagem usar Haki de forma proeminente na narrativa (seja em combate ou para uma aÃ§Ã£o), vocÃª DEVE preencher o campo 'hakiActivation' com o ID do jogador e o tipo de Haki ('Armamento', 'ObservaÃ§Ã£o', 'Conquistador'). Isso acionarÃ¡ um efeito visual no jogo. Descreva o Haki na narrativa de forma Ã©pica. Ex: "Zoro envolve seus punhos em uma aura escura de Haki do Armamento."
-7.  **Formato da Resposta:** Sua resposta DEVE SER SEMPRE um Ãºnico objeto JSON vÃ¡lido que adere ao esquema fornecido.
+1.  **O GM Humano é a Autoridade Máxima:** O GM humano fornecerá diretrizes, comandos e decisões de enredo através de um "Comando do Mestre". Sua principal tarefa é pegar esses comandos e transformá-los em uma narrativa rica e detalhada para os jogadores.
+2.  **Narrador do Mundo:** Você é responsável por descrever o mundo, os NPCs, os ambientes e os resultados das ações. Seja criativo e use o vasto conhecimento de One Piece para dar vida à história.
+3.  **Gerenciamento de Múltiplos Jogadores:** A entrada conterá o estado de TODOS os jogadores. Suas respostas devem refletir isso, atualizando os status de múltiplos jogadores se necessário (ex: um ataque em área, uma recompensa para o grupo).
+4.  **Autonomia Criativa (com Limites):** Se o GM humano não der um comando específico, você deve continuar a história com base na ação do jogador ativo, mantendo o fluxo do jogo. No entanto, sempre priorize a direção do GM humano quando ela for dada.
+5.  **Gerenciamento de Inventário:** Os jogadores podem encontrar itens. Adicione-os à lista 'inventory' do jogador correspondente.
+6.  **Ativação Visual de Haki:** QUANDO um personagem usar Haki de forma proeminente na narrativa (seja em combate ou para uma ação), você DEVE preencher o campo 'hakiActivation' com o ID do jogador e o tipo de Haki ('Armamento', 'Observação', 'Conquistador'). Isso acionará um efeito visual no jogo. Descreva o Haki na narrativa de forma épica. Ex: "Zoro envolve seus punhos em uma aura escura de Haki do Armamento."
+7.  **Formato da Resposta:** Sua resposta DEVE SER SEMPRE um único objeto JSON válido que adere ao esquema fornecido.
 
 **SISTEMAS DE JOGO (Sua responsabilidade de narrar e aplicar):**
-*   **Akuma no Mi & Haki:** Siga as regras estabelecidas pelo GM humano. Quando ele decidir que um jogador encontra uma fruta ou desperta Haki, vocÃª deve descrever o momento e aplicar as mudanÃ§as de status. O uso de habilidades consome 'energia'.
+*   **Akuma no Mi & Haki:** Siga as regras estabelecidas pelo GM humano. Quando ele decidir que um jogador encontra uma fruta ou desperta Haki, você deve descrever o momento e aplicar as mudanças de status. O uso de habilidades consome 'energia'.
 `;
 
 const responseSchema = {
     type: Type.OBJECT,
     properties: {
-        narrative: { type: Type.STRING, description: "Sua narraÃ§Ã£o da histÃ³ria para este turno." },
+        narrative: { type: Type.STRING, description: "Sua narração da história para este turno." },
         playerUpdates: {
             type: Type.ARRAY,
             items: {
@@ -45,12 +45,12 @@ const responseSchema = {
                     }
                 }
             },
-            description: "Uma lista de atualizaÃ§Ãµes para um ou mais jogadores."
+            description: "Uma lista de atualizações para um ou mais jogadores."
         },
         choices: {
             type: Type.ARRAY,
             items: { type: Type.STRING },
-            description: "Uma lista de 3 aÃ§Ãµes sugeridas para o jogador ativo."
+            description: "Uma lista de 3 ações sugeridas para o jogador ativo."
         },
         gameOver: { type: Type.BOOLEAN, description: "Defina como true se o jogo inteiro chegou a um final definitivo." },
         hakiActivation: {
@@ -58,7 +58,7 @@ const responseSchema = {
             description: "Preencha este campo se um jogador usar Haki de forma proeminente para acionar um efeito visual.",
             properties: {
                 playerId: { type: Type.STRING },
-                hakiType: { type: Type.STRING, enum: ["Armamento", "ObservaÃ§Ã£o", "Conquistador"] }
+                hakiType: { type: Type.STRING, enum: ["Armamento", "Observação", "Conquistador"] }
             }
         }
     },
@@ -72,17 +72,17 @@ export const getNextTurn = async (
     history: GameLogEntry[]
 ): Promise<GeminiResponse> => {
     
-    if (!process.env.API_KEY || 'FAKE_API_KEY_FOR_DEVELOPMENT') {
+    if (!process.env.API_KEY) {
         console.error("API_KEY environment variable not set");
         return {
-            narrative: "ERRO CRÃTICO: A chave da API do Mestre de Jogo (Gemini) nÃ£o foi encontrada. O aplicativo nÃ£o pode se conectar Ã  IA. O GM humano precisa configurar a variÃ¡vel de ambiente API_KEY no ambiente de deploy para que o jogo possa funcionar.",
+            narrative: "ERRO CRÍTICO: A chave da API do Mestre de Jogo (Gemini) não foi encontrada. O aplicativo não pode se conectar à IA. O GM humano precisa configurar a variável de ambiente API_KEY no ambiente de deploy para que o jogo possa funcionar.",
             playerUpdates: [],
             choices: [],
             gameOver: false,
         };
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || 'FAKE_API_KEY_FOR_DEVELOPMENT' });
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     const playerStates = players.map(p => `
 - ID: ${p.id}
@@ -91,25 +91,25 @@ export const getNextTurn = async (
   Recompensa: ${p.bounty}
   Akuma no Mi: ${p.devilFruit}
   Haki: ${p.haki.join(', ') || 'Nenhum'}
-  LocalizaÃ§Ã£o: ${p.location}
-  InventÃ¡rio: [${p.inventory.join(', ')}]
+  Localização: ${p.location}
+  Inventário: [${p.inventory.join(', ')}]
     `).join('');
 
     const lastPlayerAction = [...history].reverse().find(entry => entry.type === 'player');
 
     const prompt = `
-    **Diretriz do Mestre do Jogo para este turno:** ${gmDirective || "Nenhuma. Continue a histÃ³ria com base na aÃ§Ã£o do jogador."}
+    **Diretriz do Mestre do Jogo para este turno:** ${gmDirective || "Nenhuma. Continue a história com base na ação do jogador."}
 
     **Estado de Todos os Jogadores:**
     ${playerStates}
 
     **Jogador Ativo:** ${activePlayer.name} (ID: ${activePlayer.id})
-    **Ãltima AÃ§Ã£o do Jogador Ativo:** ${lastPlayerAction?.text || "Nenhuma (inÃ­cio do turno)."}
+    **Última Ação do Jogador Ativo:** ${lastPlayerAction?.text || "Nenhuma (início do turno)."}
 
-    **HistÃ³rico Recente:**
+    **Histórico Recente:**
     ${history.slice(-5).map(entry => `${entry.type === 'gm' ? 'Narrador' : (entry.playerName || 'Mestre')}: ${entry.text}`).join('\n')}
 
-    Com base na diretriz do Mestre, no estado dos jogadores e na Ãºltima aÃ§Ã£o do jogador ativo, gere o prÃ³ximo turno da histÃ³ria. Lembre-se de popular 'hakiActivation' se um Haki for usado visualmente.
+    Com base na diretriz do Mestre, no estado dos jogadores e na última ação do jogador ativo, gere o próximo turno da história. Lembre-se de popular 'hakiActivation' se um Haki for usado visualmente.
     `;
 
     try {
@@ -132,7 +132,7 @@ export const getNextTurn = async (
     } catch (error) {
         console.error("Error generating content from Gemini:", error);
         return {
-            narrative: "Uma tempestade repentina lanÃ§ou o mundo no caos! A conexÃ£o com a histÃ³ria foi perdida. Por favor, tente sua aÃ§Ã£o novamente.",
+            narrative: "Uma tempestade repentina lançou o mundo no caos! A conexão com a história foi perdida. Por favor, tente sua ação novamente.",
             playerUpdates: [],
             choices: ["Esperar a tempestade passar", "Verificar o navio por danos", "Olhar o mapa"],
             gameOver: false
