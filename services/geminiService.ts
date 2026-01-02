@@ -2,12 +2,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { GameLogEntry, CharacterStats, GeminiResponse, PlayerUpdate } from '../types';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable not set");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 const model = "gemini-3-flash-preview";
 
 const systemInstruction = `
@@ -78,6 +72,18 @@ export const getNextTurn = async (
     history: GameLogEntry[]
 ): Promise<GeminiResponse> => {
     
+    if (!process.env.API_KEY) {
+        console.error("API_KEY environment variable not set");
+        return {
+            narrative: "ERRO CRÍTICO: A chave da API do Mestre de Jogo (Gemini) não foi encontrada. O aplicativo não pode se conectar à IA. O GM humano precisa configurar a variável de ambiente API_KEY no ambiente de deploy para que o jogo possa funcionar.",
+            playerUpdates: [],
+            choices: [],
+            gameOver: false,
+        };
+    }
+
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
     const playerStates = players.map(p => `
 - ID: ${p.id}
   Nome: ${p.name}
