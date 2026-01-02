@@ -62,9 +62,23 @@ const initialGameState: GameState = {
 
 const App: React.FC = () => {
     const [gameState, setGameState] = useState<GameState>(() => {
-        const savedState = localStorage.getItem('one-piece-rpg-state');
-        return savedState ? JSON.parse(savedState) : initialGameState;
+        try {
+            const savedState = localStorage.getItem('one-piece-rpg-state');
+            if (savedState) {
+                const parsedState = JSON.parse(savedState);
+                // Basic validation to ensure it's not empty or fundamentally broken
+                if (parsedState && parsedState.players && parsedState.players.length > 0) {
+                    return parsedState;
+                }
+            }
+        } catch (error) {
+            console.error("Failed to parse saved game state from localStorage. Starting a new game.", error);
+            // If parsing fails, clear the corrupted state
+            localStorage.removeItem('one-piece-rpg-state');
+        }
+        return initialGameState;
     });
+
     const [user, setUser] = useState<{ role: 'gm' | 'player'; playerId?: string } | null>(null);
     const [isMapOpen, setMapOpen] = useState(false);
     const [hakiEffect, setHakiEffect] = useState<HakiActivation | null>(null);
